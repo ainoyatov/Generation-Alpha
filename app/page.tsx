@@ -163,9 +163,12 @@ const secretWebsites = [
 
 export default function HomePage() {
   const [username, setUsername] = useState("")
+  const [savedUsername, setSavedUsername] = useState("")
+  const [showSavedLogin, setShowSavedLogin] = useState(false)
+
   const [tempUsername, setTempUsername] = useState("")
   const [tempPassword, setTempPassword] = useState("")
-  const [showUserPopup, setShowUserPopup] = useState(true)
+  const [showUserPopup, setShowUserPopup] = useState(false)
   const [userMessage, setUserMessage] = useState("")
   const [userList, setUserList] = useState<string[]>([])
 
@@ -227,10 +230,30 @@ export default function HomePage() {
     if (savedPrivateMessages) setPrivateMessages(JSON.parse(savedPrivateMessages))
 
     if (savedUser) {
-      setUsername(savedUser)
-      setShowUserPopup(false)
+      setSavedUsername(savedUser)
+      setShowSavedLogin(true)
+    } else {
+      setShowUserPopup(true)
     }
   }, [])
+
+  function continueSavedLogin() {
+    setUsername(savedUsername)
+    setShowSavedLogin(false)
+    setShowUserPopup(false)
+  }
+
+  function createDifferentUser() {
+    localStorage.removeItem("generationAlphaUsername")
+    localStorage.removeItem("generationAlphaPassword")
+
+    setUsername("")
+    setSavedUsername("")
+    setTempUsername("")
+    setTempPassword("")
+    setShowSavedLogin(false)
+    setShowUserPopup(true)
+  }
 
   function createUser() {
     if (tempUsername.length < 8 || tempUsername.length > 50) {
@@ -473,6 +496,36 @@ export default function HomePage() {
           <div className="mb-6 flex justify-center sm:absolute sm:right-0 sm:top-0 sm:mb-0">
             <div className="rounded-xl bg-white px-4 py-2 shadow-lg">
               <p className="font-bold text-green-900">@{username}</p>
+            </div>
+          </div>
+        )}
+
+        {showSavedLogin && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 px-6">
+            <div className="w-full max-w-md rounded-2xl bg-white p-8 text-green-900 shadow-2xl">
+              <h2 className="text-3xl font-black">Welcome Back</h2>
+
+              <p className="mt-3 text-green-700">
+                Log into this saved account?
+              </p>
+
+              <div className="mt-6 rounded-xl bg-green-100 p-4 text-center text-2xl font-black">
+                @{savedUsername}
+              </div>
+
+              <button
+                onClick={continueSavedLogin}
+                className="mt-4 w-full rounded-lg bg-green-900 px-6 py-3 text-white"
+              >
+                Continue as @{savedUsername}
+              </button>
+
+              <button
+                onClick={createDifferentUser}
+                className="mt-3 w-full rounded-lg bg-gray-700 px-6 py-3 text-white"
+              >
+                Create Different Account
+              </button>
             </div>
           </div>
         )}
