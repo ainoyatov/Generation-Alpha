@@ -1,0 +1,47 @@
+"use client"
+
+import { Website } from "../types"
+
+type Props = {
+  website: Website
+  favorites: string[]
+  onToggleFavorite: (name: string) => void
+  onReportBug: (website: Website) => void
+}
+
+export default function WebsiteCard({
+  website,
+  favorites,
+  onToggleFavorite,
+  onReportBug,
+}: Props) {
+  const isFavorite = favorites.includes(website.name)
+
+  return (
+    <div className="rounded-2xl bg-white p-6 text-green-900 shadow-lg transition hover:-translate-y-2 hover:shadow-2xl">
+      <a href={website.url} target="_blank" rel="noopener noreferrer">
+        <h3 className="text-2xl font-bold">{website.name}</h3>
+
+        <p className="mt-3 text-green-700">
+          {website.description}
+        </p>
+      </a>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        <button
+          onClick={() => onToggleFavorite(website.name)}
+          className="rounded-lg bg-yellow-100 px-3 py-2 text-sm font-bold text-yellow-800"
+        >
+          {isFavorite ? "★ Favorited" : "☆ Favorite"}
+        </button>
+
+        <button
+          onClick={() => onReportBug(website)}
+          className="rounded-lg bg-red-100 px-3 py-2 text-sm font-bold text-red-700"
+        >
+          Report Bug
+        </button>
+      </div>
+    </div>
+  )
+}

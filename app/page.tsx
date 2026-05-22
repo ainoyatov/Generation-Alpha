@@ -2,164 +2,22 @@
 
 import { useEffect, useMemo, useState } from "react"
 
-const defaultTitle = "Generation Alpha"
+import AdminPanel from "./components/AdminPanel"
+import UserLogin from "./components/UserLogin"
+import WebsiteCard from "./components/WebsiteCard"
 
-type Website = {
-  name: string
-  url: string
-  description: string
-}
+import {
+  defaultTitle,
+  secretApps,
+  secretWebsites,
+  sections,
+} from "./data"
 
-type BugReport = {
-  id: number
-  websiteName: string
-  reason: string
-  reporter: string
-  status: "Pending" | "Accepted"
-}
-
-type PrivateMessage = {
-  id: number
-  to: string
-  message: string
-}
-
-const sections = [
-  {
-    title: "Entertainment",
-    websites: [
-      { name: "YouTube", url: "https://www.youtube.com", description: "Videos and livestreams" },
-      { name: "Netflix", url: "https://www.netflix.com", description: "Watch movies and TV shows" },
-      { name: "Disney+", url: "https://www.disneyplus.com", description: "Disney movies and Marvel shows" },
-      { name: "Spotify", url: "https://www.spotify.com", description: "Music and podcasts" },
-      { name: "Twitch", url: "https://www.twitch.tv", description: "Gaming livestreams" },
-      { name: "Crunchyroll", url: "https://www.crunchyroll.com", description: "Anime streaming" },
-      { name: "Hulu", url: "https://www.hulu.com", description: "TV shows and movies" },
-      { name: "Tubi", url: "https://tubitv.com", description: "Free movies and shows" },
-      { name: "Pluto TV", url: "https://pluto.tv", description: "Free live TV" },
-      { name: "Prime Video", url: "https://www.primevideo.com", description: "Movies and shows" },
-    ],
-  },
-  {
-    title: "Social Media",
-    websites: [
-      { name: "TikTok", url: "https://www.tiktok.com", description: "Watch viral short videos" },
-      { name: "Instagram", url: "https://www.instagram.com", description: "Photos and reels" },
-      { name: "Snapchat", url: "https://www.snapchat.com", description: "Chat and stories" },
-      { name: "Discord", url: "https://www.discord.com", description: "Chat with friends" },
-      { name: "Reddit", url: "https://www.reddit.com", description: "Communities and discussions" },
-      { name: "Pinterest", url: "https://www.pinterest.com", description: "Ideas and inspiration" },
-      { name: "ChatGPT", url: "https://chatgpt.com", description: "AI assistant" },
-    ],
-  },
-  {
-    title: "Games",
-    websites: [
-      { name: "Roblox", url: "https://www.roblox.com", description: "Millions of online games" },
-      { name: "Minecraft", url: "https://www.minecraft.net", description: "Build and explore worlds" },
-      { name: "Fortnite", url: "https://www.fortnite.com", description: "Battle royale and creative mode" },
-      { name: "Call of Duty Mobile", url: "https://apps.apple.com/us/app/call-of-duty-mobile/id1287282214", description: "Mobile shooter game" },
-      { name: "PUBG Mobile", url: "https://apps.apple.com/us/app/pubg-mobile/id1330123889", description: "Battle royale survival" },
-      { name: "Brawl Stars", url: "https://apps.apple.com/us/app/brawl-stars/id1229016807", description: "Fast multiplayer battles" },
-      { name: "Clash Royale", url: "https://apps.apple.com/us/app/clash-royale/id1053012308", description: "Real-time strategy battles" },
-      { name: "Clash of Clans", url: "https://apps.apple.com/us/app/clash-of-clans/id529479190", description: "Build villages and battle" },
-      { name: "Among Us", url: "https://apps.apple.com/us/app/among-us/id1351168404", description: "Find the impostor" },
-      { name: "Stumble Guys", url: "https://apps.apple.com/us/app/stumble-guys/id1541153375", description: "Funny obstacle races" },
-      { name: "Subway Surfers", url: "https://apps.apple.com/us/app/subway-surfers/id512939461", description: "Classic endless runner" },
-      { name: "Temple Run 2", url: "https://apps.apple.com/us/app/temple-run-2/id572395608", description: "Escape and survive" },
-      { name: "Pokémon GO", url: "https://apps.apple.com/us/app/pokémon-go/id1094591345", description: "Catch Pokémon outside" },
-      { name: "Geometry Dash Lite", url: "https://apps.apple.com/us/app/geometry-dash-lite/id698255242", description: "Free Geometry Dash version" },
-      { name: "Geometry Dash World", url: "https://apps.apple.com/us/app/geometry-dash-world/id1185457891", description: "Explore Geometry Dash levels" },
-      { name: "Geometry Dash Meltdown", url: "https://apps.apple.com/us/app/geometry-dash-meltdown/id1045901853", description: "Rhythm platform challenge" },
-      { name: "Geometry Dash SubZero", url: "https://apps.apple.com/us/app/geometry-dash-subzero/id1324044770", description: "Music and jumping action" },
-      { name: "Free Fire", url: "https://ff.garena.com", description: "Battle royale action game" },
-      { name: "Rocket League", url: "https://www.rocketleague.com", description: "Soccer with rocket cars" },
-      { name: "Valorant", url: "https://playvalorant.com", description: "Competitive tactical shooter" },
-      { name: "League of Legends", url: "https://www.leagueoflegends.com", description: "Popular MOBA strategy game" },
-      { name: "Genshin Impact", url: "https://genshin.hoyoverse.com", description: "Open world anime adventure" },
-      { name: "Fall Guys", url: "https://www.fallguys.com", description: "Funny obstacle survival game" },
-      { name: "Apex Legends", url: "https://www.ea.com/games/apex-legends", description: "Squad battle royale shooter" },
-      { name: "CS2", url: "https://www.counter-strike.net", description: "Competitive FPS action" },
-      { name: "Halo Infinite", url: "https://www.halowaypoint.com", description: "Sci-fi multiplayer battles" },
-      { name: "FIFA", url: "https://www.ea.com/games/ea-sports-fc", description: "Football and soccer simulation" },
-      { name: "NBA 2K", url: "https://nba.2k.com", description: "Basketball sports game" },
-    ],
-  },
-  {
-    title: "Editing Apps",
-    websites: [
-      { name: "CapCut", url: "https://www.capcut.com", description: "Edit viral videos" },
-      { name: "Canva", url: "https://www.canva.com", description: "Create graphics and slides" },
-      { name: "Adobe Photoshop", url: "https://www.adobe.com/products/photoshop.html", description: "Professional photo editing" },
-      { name: "Photopea", url: "https://www.photopea.com", description: "Free Photoshop alternative" },
-      { name: "Pixlr", url: "https://pixlr.com", description: "Online photo editor" },
-      { name: "Figma", url: "https://www.figma.com", description: "Design websites and apps" },
-    ],
-  },
-  {
-    title: "School",
-    websites: [
-      { name: "Google Classroom", url: "https://classroom.google.com", description: "Assignments and school classes" },
-      { name: "Blooket", url: "https://www.blooket.com", description: "Fun classroom quiz games" },
-      { name: "Classroom 6x", url: "https://classroom6x.org", description: "Popular unblocked games website" },
-      { name: "Classroom Resources", url: "https://sites.google.com/view/classroom-resources", description: "Unblocked games and resources" },
-      { name: "Cool Math Games", url: "https://www.coolmathgames.com", description: "Educational puzzle games" },
-      { name: "Khan Academy", url: "https://www.khanacademy.org", description: "Free learning and lessons" },
-      { name: "Quizlet", url: "https://quizlet.com", description: "Flashcards and study tools" },
-      { name: "Kahoot!", url: "https://kahoot.com", description: "Interactive classroom quizzes" },
-      { name: "Duolingo", url: "https://www.duolingo.com", description: "Learn languages for free" },
-    ],
-  },
-  {
-    title: "Fun Websites",
-    websites: [
-      { name: "Neal.fun", url: "https://neal.fun", description: "Fun internet experiments" },
-      { name: "GeoGuessr", url: "https://www.geoguessr.com", description: "Guess places around the world" },
-      { name: "Akinator", url: "https://en.akinator.com", description: "Guess characters and people" },
-      { name: "The Useless Web", url: "https://theuselessweb.com", description: "Random funny websites" },
-      { name: "Pointer Pointer", url: "https://pointerpointer.com", description: "Finds a photo pointing at your cursor" },
-      { name: "Quick, Draw!", url: "https://quickdraw.withgoogle.com", description: "AI guessing drawing game" },
-      { name: "Chrome Music Lab", url: "https://musiclab.chromeexperiments.com", description: "Create music with fun tools" },
-      { name: "Little Alchemy 2", url: "https://littlealchemy2.com", description: "Mix elements to create things" },
-    ],
-  },
-]
-
-const secretApps = [
-  { name: "Scratch", url: "https://scratch.mit.edu", description: "Create games and animations" },
-  { name: "Replit", url: "https://replit.com", description: "Code in your browser" },
-  { name: "CodePen", url: "https://codepen.io", description: "Build frontend demos" },
-  { name: "Desmos", url: "https://www.desmos.com", description: "Graphing calculator" },
-  { name: "Remove.bg", url: "https://www.remove.bg", description: "Remove image backgrounds" },
-  { name: "Notion", url: "https://www.notion.so", description: "Notes and organization" },
-  { name: "Trello", url: "https://trello.com", description: "Project boards" },
-  { name: "Giphy", url: "https://giphy.com", description: "GIF search" },
-  { name: "Tenor", url: "https://tenor.com", description: "Reaction GIFs" },
-  { name: "Sketchpad", url: "https://sketch.io/sketchpad", description: "Draw online" },
-  { name: "Miro", url: "https://miro.com", description: "Whiteboard app" },
-  { name: "Soundtrap", url: "https://www.soundtrap.com", description: "Make music online" },
-  { name: "Grammarly", url: "https://www.grammarly.com", description: "Writing assistant" },
-  { name: "BeReal", url: "https://bereal.com", description: "Social photo app" },
-  { name: "Threads", url: "https://www.threads.net", description: "Social app" },
-]
-
-const secretWebsites = [
-  { name: "Bored Button", url: "https://www.boredbutton.com", description: "Random fun websites" },
-  { name: "Hacker Typer", url: "https://hackertyper.net", description: "Fake hacker typing" },
-  { name: "Zoom Quilt", url: "https://zoomquilt.org", description: "Infinite zoom art" },
-  { name: "WeaveSilk", url: "https://weavesilk.com", description: "Interactive silk art" },
-  { name: "Find the Invisible Cow", url: "https://findtheinvisiblecow.com", description: "Funny sound game" },
-  { name: "MapCrunch", url: "https://www.mapcrunch.com", description: "Random street views" },
-  { name: "Sandspiel", url: "https://sandspiel.club", description: "Falling sand game" },
-  { name: "FutureMe", url: "https://www.futureme.org", description: "Write future letters" },
-  { name: "Astronaut.io", url: "https://astronaut.io", description: "Random YouTube videos" },
-  { name: "Internet Live Stats", url: "https://www.internetlivestats.com", description: "Live internet stats" },
-  { name: "Mental Floss", url: "https://www.mentalfloss.com", description: "Facts and trivia" },
-  { name: "Emoji Kitchen", url: "https://emoji.supply/kitchen", description: "Mix emojis" },
-  { name: "Scream Into the Void", url: "https://screamintothevoid.com", description: "Type and release thoughts" },
-  { name: "Radiooooo", url: "https://radiooooo.com", description: "Music by country and decade" },
-  { name: "Bouncy Balls", url: "https://bouncyballs.org", description: "Noise visualizer" },
-]
+import {
+  BugReport,
+  PrivateMessage,
+  Website,
+} from "./types"
 
 export default function HomePage() {
   const [username, setUsername] = useState("")
@@ -176,13 +34,8 @@ export default function HomePage() {
   const [adminUnlocked, setAdminUnlocked] = useState(false)
   const [adminError, setAdminError] = useState("")
 
-  const [siteTitle, setSiteTitle] = useState(defaultTitle)
-  const [titleInput, setTitleInput] = useState("")
-
   const [announcementInput, setAnnouncementInput] = useState("")
   const [announcement, setAnnouncement] = useState("")
-  const [showAnnouncement, setShowAnnouncement] = useState(false)
-  const [fadeOut, setFadeOut] = useState(false)
 
   const [showSecretLinks, setShowSecretLinks] = useState(false)
   const [secretApp, setSecretApp] = useState<Website>(secretApps[0])
@@ -194,27 +47,44 @@ export default function HomePage() {
 
   const [featuredGame, setFeaturedGame] = useState<Website | null>(null)
   const [featuredApp, setFeaturedApp] = useState<Website | null>(null)
+
   const [kickUsername, setKickUsername] = useState("")
-
   const [searchTerm, setSearchTerm] = useState("")
-  const [favorites, setFavorites] = useState<string[]>([])
+  const [showSuggestions, setShowSuggestions] = useState(true)
 
+  const [favorites, setFavorites] = useState<string[]>([])
   const [bugReports, setBugReports] = useState<BugReport[]>([])
   const [privateMessages, setPrivateMessages] = useState<PrivateMessage[]>([])
   const [reportingWebsite, setReportingWebsite] = useState<Website | null>(null)
   const [bugReason, setBugReason] = useState("")
+
+  const [showProfile, setShowProfile] = useState(false)
+  const [showAdminBadge, setShowAdminBadge] = useState(false)
+  const [showUserStatus, setShowUserStatus] = useState(false)
+  const [showTrendingApps, setShowTrendingApps] = useState(false)
+  const [themeMode, setThemeMode] = useState("default")
+  const [showComments, setShowComments] = useState(false)
+  const [showRecentlyVisited, setShowRecentlyVisited] = useState(false)
+
+  const [recentlyVisited, setRecentlyVisited] = useState<string[]>([])
+  const [comments, setComments] = useState<string[]>([])
+  const [commentInput, setCommentInput] = useState("")
 
   const allWebsites = useMemo(
     () => sections.flatMap((section) => section.websites),
     []
   )
 
-  const favoriteWebsites = allWebsites.filter((website) =>
-    favorites.includes(website.name)
+  const filteredSuggestions = allWebsites.filter((website) =>
+    website.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   const myPrivateMessages = privateMessages.filter(
-    (privateMessage) => privateMessage.to === username
+    (message) => message.to === username
+  )
+
+  const trendingApps = allWebsites.filter((website) =>
+    favorites.includes(website.name)
   )
 
   useEffect(() => {
@@ -223,11 +93,15 @@ export default function HomePage() {
     const savedFavorites = localStorage.getItem("generationAlphaFavorites")
     const savedBugReports = localStorage.getItem("generationAlphaBugReports")
     const savedPrivateMessages = localStorage.getItem("generationAlphaPrivateMessages")
+    const savedRecentlyVisited = localStorage.getItem("generationAlphaRecentlyVisited")
+    const savedComments = localStorage.getItem("generationAlphaComments")
 
     if (savedUsers) setUserList(JSON.parse(savedUsers))
     if (savedFavorites) setFavorites(JSON.parse(savedFavorites))
     if (savedBugReports) setBugReports(JSON.parse(savedBugReports))
     if (savedPrivateMessages) setPrivateMessages(JSON.parse(savedPrivateMessages))
+    if (savedRecentlyVisited) setRecentlyVisited(JSON.parse(savedRecentlyVisited))
+    if (savedComments) setComments(JSON.parse(savedComments))
 
     if (savedUser) {
       setSavedUsername(savedUser)
@@ -240,7 +114,6 @@ export default function HomePage() {
   function continueSavedLogin() {
     setUsername(savedUsername)
     setShowSavedLogin(false)
-    setShowUserPopup(false)
   }
 
   function createDifferentUser() {
@@ -293,11 +166,10 @@ export default function HomePage() {
 
     setAnnouncement(announcementInput)
     setAnnouncementInput("")
-    setShowAnnouncement(true)
-    setFadeOut(false)
 
-    setTimeout(() => setFadeOut(true), 4000)
-    setTimeout(() => setShowAnnouncement(false), 5000)
+    setTimeout(() => {
+      setAnnouncement("")
+    }, 5000)
   }
 
   function gambleSecretLinks() {
@@ -330,17 +202,6 @@ export default function HomePage() {
     setFeaturedApp(allWebsites[Math.floor(Math.random() * allWebsites.length)])
   }
 
-  function renameWebsite() {
-    if (!titleInput.trim()) return
-
-    setSiteTitle(titleInput)
-    setTitleInput("")
-  }
-
-  function resetWebsiteName() {
-    setSiteTitle(defaultTitle)
-  }
-
   function kickUser() {
     if (!kickUsername.trim()) return
 
@@ -353,12 +214,9 @@ export default function HomePage() {
       localStorage.removeItem("generationAlphaUsername")
       localStorage.removeItem("generationAlphaPassword")
       setUsername("")
-      setTempUsername("")
-      setTempPassword("")
       setShowUserPopup(true)
     }
 
-    alert(`${kickUsername} was removed from the saved user list on this device.`)
     setKickUsername("")
   }
 
@@ -380,7 +238,7 @@ export default function HomePage() {
     if (!reportingWebsite) return
 
     if (!bugReason.trim()) {
-      alert("Please give a reason for the bug report.")
+      alert("Please give a reason.")
       return
     }
 
@@ -398,14 +256,6 @@ export default function HomePage() {
     setBugReports(updatedReports)
     setReportingWebsite(null)
     setBugReason("")
-    alert("Bug report sent to admin.")
-  }
-
-  function dismissBugReport(reportId: number) {
-    const updatedReports = bugReports.filter((report) => report.id !== reportId)
-
-    localStorage.setItem("generationAlphaBugReports", JSON.stringify(updatedReports))
-    setBugReports(updatedReports)
   }
 
   function acceptBugReport(report: BugReport) {
@@ -430,123 +280,95 @@ export default function HomePage() {
     setPrivateMessages(updatedMessages)
   }
 
+  function dismissBugReport(reportId: number) {
+    const updatedReports = bugReports.filter((report) => report.id !== reportId)
+
+    localStorage.setItem("generationAlphaBugReports", JSON.stringify(updatedReports))
+    setBugReports(updatedReports)
+  }
+
   function dismissPrivateMessage(messageId: number) {
     const updatedMessages = privateMessages.filter(
-      (privateMessage) => privateMessage.id !== messageId
+      (message) => message.id !== messageId
     )
 
     localStorage.setItem("generationAlphaPrivateMessages", JSON.stringify(updatedMessages))
     setPrivateMessages(updatedMessages)
   }
 
-  function scrollToSection(title: string) {
-    document
-      .getElementById(title.toLowerCase().replaceAll(" ", "-"))
-      ?.scrollIntoView({ behavior: "smooth" })
+  function cycleTheme() {
+    if (themeMode === "default") setThemeMode("neon")
+    else if (themeMode === "neon") setThemeMode("galaxy")
+    else if (themeMode === "galaxy") setThemeMode("matrix")
+    else setThemeMode("default")
   }
 
-  function matchesSearch(website: Website) {
-    const value = searchTerm.toLowerCase()
+  function visitWebsite(website: Website) {
+    const updatedVisited = [
+      website.name,
+      ...recentlyVisited.filter((item) => item !== website.name),
+    ].slice(0, 8)
 
-    return (
-      website.name.toLowerCase().includes(value) ||
-      website.description.toLowerCase().includes(value)
-    )
+    localStorage.setItem("generationAlphaRecentlyVisited", JSON.stringify(updatedVisited))
+    setRecentlyVisited(updatedVisited)
   }
 
-  function WebsiteCard({ website }: { website: Website }) {
-    return (
-      <div className="rounded-2xl bg-white p-6 text-green-900 shadow-lg transition hover:-translate-y-2 hover:shadow-2xl">
-        <a href={website.url} target="_blank" rel="noopener noreferrer">
-          <h3 className="text-2xl font-bold">{website.name}</h3>
-          <p className="mt-3 text-green-700">{website.description}</p>
-        </a>
+  function addComment() {
+    if (!commentInput.trim()) return
 
-        <div className="mt-4 flex flex-wrap gap-2">
-          <button
-            onClick={() => toggleFavorite(website.name)}
-            className="rounded-lg bg-yellow-100 px-3 py-2 text-sm font-bold text-yellow-800"
-          >
-            {favorites.includes(website.name) ? "★ Favorited" : "☆ Favorite"}
-          </button>
+    const newComment = `@${username || "Unknown"}: ${commentInput}`
+    const updatedComments = [newComment, ...comments]
 
-          <button
-            onClick={() => openBugReport(website)}
-            className="rounded-lg bg-red-100 px-3 py-2 text-sm font-bold text-red-700"
-          >
-            Report Bug
-          </button>
-        </div>
-      </div>
-    )
+    localStorage.setItem("generationAlphaComments", JSON.stringify(updatedComments))
+    setComments(updatedComments)
+    setCommentInput("")
   }
+
+  const backgroundClass =
+    themeMode === "neon"
+      ? "bg-gradient-to-br from-black via-purple-950 to-black text-white"
+      : themeMode === "galaxy"
+      ? "bg-gradient-to-br from-indigo-950 via-black to-purple-950 text-white"
+      : themeMode === "matrix"
+      ? "bg-black text-green-400"
+      : darkMode
+      ? "bg-black text-white"
+      : partyMode
+      ? "bg-gradient-to-br from-pink-300 via-yellow-200 to-blue-300"
+      : "bg-gradient-to-b from-green-100 to-white"
 
   return (
-    <main
-      className={`min-h-screen px-4 py-8 sm:px-6 sm:py-12 ${
-        partyMode
-          ? "bg-gradient-to-br from-pink-300 via-yellow-200 to-blue-300"
-          : darkMode
-          ? "bg-black text-white"
-          : "bg-gradient-to-b from-green-100 to-white"
-      }`}
-    >
-      <section className="relative mx-auto max-w-7xl">
-        {username && (
-          <div className="mb-6 flex justify-center sm:absolute sm:right-0 sm:top-0 sm:mb-0">
-            <div className="rounded-xl bg-white px-4 py-2 shadow-lg">
-              <p className="font-bold text-green-900">@{username}</p>
-            </div>
-          </div>
-        )}
-
-        {showSavedLogin && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 px-6">
-            <div className="w-full max-w-md rounded-2xl bg-white p-8 text-green-900 shadow-2xl">
-              <h2 className="text-3xl font-black">Welcome Back</h2>
-
-              <p className="mt-3 text-green-700">
-                Log into this saved account?
-              </p>
-
-              <div className="mt-6 rounded-xl bg-green-100 p-4 text-center text-2xl font-black">
-                @{savedUsername}
-              </div>
-
-              <button
-                onClick={continueSavedLogin}
-                className="mt-4 w-full rounded-lg bg-green-900 px-6 py-3 text-white"
-              >
-                Continue as @{savedUsername}
-              </button>
-
-              <button
-                onClick={createDifferentUser}
-                className="mt-3 w-full rounded-lg bg-gray-700 px-6 py-3 text-white"
-              >
-                Create Different Account
-              </button>
-            </div>
-          </div>
-        )}
+    <main className={`min-h-screen px-6 py-12 ${backgroundClass}`}>
+      <section className="mx-auto max-w-7xl">
+        <UserLogin
+          username={username}
+          savedUsername={savedUsername}
+          tempUsername={tempUsername}
+          tempPassword={tempPassword}
+          showSavedLogin={showSavedLogin}
+          showUserPopup={showUserPopup}
+          userMessage={userMessage}
+          setTempUsername={setTempUsername}
+          setTempPassword={setTempPassword}
+          continueSavedLogin={continueSavedLogin}
+          createDifferentUser={createDifferentUser}
+          createUser={createUser}
+        />
 
         {myPrivateMessages.length > 0 && (
-          <div className="mb-6 rounded-2xl bg-blue-100 p-4 text-blue-900 shadow-lg">
-            <h2 className="text-xl font-bold">Private Messages</h2>
+          <div className="fixed right-4 top-4 z-[90] w-[90%] max-w-sm rounded-2xl bg-blue-100 p-4 text-blue-900 shadow-2xl">
+            <h2 className="text-xl font-black">Private Messages</h2>
 
             <div className="mt-3 space-y-3">
-              {myPrivateMessages.map((privateMessage) => (
-                <div
-                  key={privateMessage.id}
-                  className="rounded-xl bg-white p-4 shadow"
-                >
-                  <p>{privateMessage.message}</p>
+              {myPrivateMessages.map((message) => (
+                <div key={message.id} className="rounded-xl bg-white p-4 shadow">
+                  <p>{message.message}</p>
 
                   <button
-                    onClick={() => dismissPrivateMessage(privateMessage.id)}
+                    onClick={() => dismissPrivateMessage(message.id)}
                     className="mt-3 rounded-lg bg-blue-700 px-4 py-2 text-sm font-bold text-white"
                   >
-                    Dismiss Message
+                    Delete Message
                   </button>
                 </div>
               ))}
@@ -554,48 +376,226 @@ export default function HomePage() {
           </div>
         )}
 
-        {showUserPopup && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 px-6">
-            <div className="w-full max-w-md rounded-2xl bg-white p-8 text-green-900 shadow-2xl">
-              <h2 className="text-3xl font-black">Create Account</h2>
+        <h1 className="text-center text-5xl font-black text-green-900 sm:text-6xl">
+          {showAdminBadge && adminUnlocked ? "👑 " : ""}
+          {defaultTitle}
+        </h1>
 
-              <input
-                value={tempUsername}
-                onChange={(e) => setTempUsername(e.target.value)}
-                placeholder="Username"
-                className="mt-6 w-full rounded-lg border p-4"
-              />
+        <p className="mx-auto mt-4 max-w-3xl text-center text-lg font-medium text-green-800">
+          Generation Alpha is your custom portal for games, apps, school tools,
+          editing tools, fun websites, favorites, bug reports, and admin-powered features.
+        </p>
 
-              <input
-                type="password"
-                value={tempPassword}
-                onChange={(e) => setTempPassword(e.target.value)}
-                placeholder="Password"
-                className="mt-4 w-full rounded-lg border p-4"
-              />
-
-              <button
-                onClick={createUser}
-                className="mt-4 w-full rounded-lg bg-green-900 px-6 py-3 text-white"
-              >
-                Save Account
-              </button>
-
-              {userMessage && (
-                <p className="mt-4 rounded-lg bg-green-100 p-3">
-                  {userMessage}
-                </p>
-              )}
-            </div>
+        {announcement && (
+          <div className="fixed left-1/2 top-6 z-[80] w-[90%] max-w-4xl -translate-x-1/2 text-center text-3xl font-black text-red-700 drop-shadow-lg">
+            {announcement}
           </div>
         )}
 
+        <div className="relative mt-10">
+          <input
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value)
+              setShowSuggestions(true)
+            }}
+            placeholder="Search apps, games, websites..."
+            className="w-full rounded-xl border p-4 text-black"
+          />
+
+          {showSuggestions && searchTerm && (
+            <div className="absolute z-50 mt-2 max-h-80 w-full overflow-y-auto rounded-xl bg-white shadow-2xl">
+              {filteredSuggestions.slice(0, 8).map((website) => (
+                <button
+                  key={website.name}
+                  onClick={() => {
+                    setSearchTerm(website.name)
+                    setShowSuggestions(false)
+                  }}
+                  className="block w-full border-b px-4 py-3 text-left text-black hover:bg-green-100"
+                >
+                  {website.name}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {siteLocked ? (
+          <div className="mt-16 rounded-2xl bg-red-100 p-8 text-center text-red-900 shadow-xl">
+            <h2 className="text-4xl font-black">Site Locked</h2>
+            <p className="mt-3 text-xl">Admin locked the website.</p>
+          </div>
+        ) : (
+          sections.map((section) => (
+            <div key={section.title} className="mt-16">
+              <h2 className="mb-6 text-4xl font-bold text-green-900">
+                {section.title}
+              </h2>
+
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {section.websites
+                  .filter((website) =>
+                    website.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    website.description.toLowerCase().includes(searchTerm.toLowerCase())
+                  )
+                  .map((website) => (
+                    <WebsiteCard
+                      key={website.name}
+                      website={website}
+                      favorites={favorites}
+                      onToggleFavorite={toggleFavorite}
+                      onReportBug={openBugReport}
+                      onVisit={visitWebsite}
+                    />
+                  ))}
+              </div>
+            </div>
+          ))
+        )}
+
+        <div className="mt-20 space-y-10">
+          {showProfile && (
+            <div className="rounded-2xl bg-white p-6 text-green-900 shadow-xl">
+              <h2 className="text-3xl font-bold">User Profile</h2>
+              <p className="mt-3">Username: @{username || "Not logged in"}</p>
+              <p>Favorites: {favorites.length}</p>
+              <p>
+                Reports sent:{" "}
+                {bugReports.filter((report) => report.reporter === username).length}
+              </p>
+            </div>
+          )}
+
+          {showUserStatus && adminUnlocked && (
+            <div className="rounded-2xl bg-white p-6 text-green-900 shadow-xl">
+              <h2 className="text-3xl font-bold">Admin-Only User Status</h2>
+              <p className="mt-3">@{username || "Unknown"} is Online</p>
+              <p>Idle status: Active now</p>
+            </div>
+          )}
+
+          {showTrendingApps && (
+            <div className="rounded-2xl bg-white p-6 text-green-900 shadow-xl">
+              <h2 className="text-3xl font-bold">Trending Apps</h2>
+              {trendingApps.length === 0 ? (
+                <p className="mt-3">Favorite apps to make them trend.</p>
+              ) : (
+                <ul className="mt-3 list-disc pl-6">
+                  {trendingApps.map((app) => (
+                    <li key={app.name}>{app.name}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
+          {showRecentlyVisited && (
+            <div className="rounded-2xl bg-white p-6 text-green-900 shadow-xl">
+              <h2 className="text-3xl font-bold">Recently Visited</h2>
+              {recentlyVisited.length === 0 ? (
+                <p className="mt-3">No visits yet.</p>
+              ) : (
+                <ul className="mt-3 list-disc pl-6">
+                  {recentlyVisited.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
+          {featuredGame && (
+            <div className="rounded-2xl bg-white p-6 text-green-900 shadow-xl">
+              <h2 className="text-3xl font-bold">Featured Game</h2>
+              <a
+                href={featuredGame.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 block rounded-xl bg-green-100 p-4 font-bold"
+              >
+                {featuredGame.name} — {featuredGame.description}
+              </a>
+            </div>
+          )}
+
+          {featuredApp && (
+            <div className="rounded-2xl bg-white p-6 text-blue-900 shadow-xl">
+              <h2 className="text-3xl font-bold">Featured App</h2>
+              <a
+                href={featuredApp.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 block rounded-xl bg-blue-100 p-4 font-bold"
+              >
+                {featuredApp.name} — {featuredApp.description}
+              </a>
+            </div>
+          )}
+
+          {showComments && (
+            <div className="rounded-2xl bg-white p-6 text-green-900 shadow-xl">
+              <h2 className="text-3xl font-bold">Comments</h2>
+
+              <div className="mt-4 flex gap-3">
+                <input
+                  value={commentInput}
+                  onChange={(e) => setCommentInput(e.target.value)}
+                  placeholder="Write a comment..."
+                  className="flex-1 rounded-lg border p-4 text-black"
+                />
+
+                <button
+                  onClick={addComment}
+                  className="rounded-lg bg-green-900 px-6 py-4 text-white"
+                >
+                  Post
+                </button>
+              </div>
+
+              <div className="mt-4 space-y-2">
+                {comments.map((comment, index) => (
+                  <p key={index} className="rounded-lg bg-green-100 p-3">
+                    {comment}
+                  </p>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {showSecretLinks && (
+            <div>
+              <h2 className="mb-6 text-4xl font-bold text-purple-700">
+                Secret Links
+              </h2>
+
+              <div className="grid gap-6 sm:grid-cols-2">
+                <WebsiteCard
+                  website={secretApp}
+                  favorites={favorites}
+                  onToggleFavorite={toggleFavorite}
+                  onReportBug={openBugReport}
+                  onVisit={visitWebsite}
+                />
+
+                <WebsiteCard
+                  website={secretWebsite}
+                  favorites={favorites}
+                  onToggleFavorite={toggleFavorite}
+                  onReportBug={openBugReport}
+                  onVisit={visitWebsite}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
         {reportingWebsite && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 px-6">
-            <div className="w-full max-w-md rounded-2xl bg-white p-8 text-green-900 shadow-2xl">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-6">
+            <div className="w-full max-w-md rounded-2xl bg-white p-8 text-black">
               <h2 className="text-3xl font-black">Report Bug</h2>
 
-              <p className="mt-3 text-green-700">
+              <p className="mt-3">
                 What is wrong with {reportingWebsite.name}?
               </p>
 
@@ -603,7 +603,7 @@ export default function HomePage() {
                 value={bugReason}
                 onChange={(e) => setBugReason(e.target.value)}
                 placeholder="Give a reason..."
-                className="mt-6 h-32 w-full rounded-lg border p-4 text-black"
+                className="mt-6 h-32 w-full rounded-lg border p-4"
               />
 
               <button
@@ -623,317 +623,38 @@ export default function HomePage() {
           </div>
         )}
 
-        {announcement && showAnnouncement && (
-          <div
-            className={`sticky top-4 z-50 mb-8 rounded-xl bg-yellow-200 p-4 text-center font-bold text-black shadow-xl transition-opacity duration-1000 ${
-              fadeOut ? "opacity-0" : "opacity-100"
-            }`}
-          >
-            {announcement}
-          </div>
-        )}
-
-        <h1 className="text-center text-4xl font-black text-green-900 sm:text-6xl">
-          {siteTitle}
-        </h1>
-
-        <p className="mt-4 text-center text-lg text-green-800 sm:text-xl">
-          Your portal to apps, games, entertainment, and fun websites.
-        </p>
-
-        <div className="sticky top-0 z-40 mt-8 rounded-2xl bg-white/90 p-4 shadow-lg backdrop-blur">
-          <input
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search apps, games, websites..."
-            className="w-full rounded-lg border p-4 text-black"
-          />
-
-          <div className="mt-4 flex flex-wrap justify-center gap-2">
-            {sections.map((section) => (
-              <button
-                key={section.title}
-                onClick={() => scrollToSection(section.title)}
-                className="rounded-full bg-green-900 px-4 py-2 text-sm font-bold text-white"
-              >
-                {section.title}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {favoriteWebsites.length > 0 && (
-          <div className="mt-10">
-            <h2 className="mb-6 text-4xl font-bold text-yellow-700">
-              Favorites
-            </h2>
-
-            <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {favoriteWebsites.map((website) => (
-                <WebsiteCard key={website.name} website={website} />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {featuredGame && (
-          <div className="mt-10 rounded-2xl bg-white p-6 text-green-900 shadow-xl">
-            <h2 className="text-3xl font-bold">Featured Game</h2>
-
-            <a
-              href={featuredGame.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-4 block rounded-xl bg-green-100 p-4 font-bold"
-            >
-              {featuredGame.name} — {featuredGame.description}
-            </a>
-          </div>
-        )}
-
-        {featuredApp && (
-          <div className="mt-10 rounded-2xl bg-white p-6 text-blue-900 shadow-xl">
-            <h2 className="text-3xl font-bold">Featured App</h2>
-
-            <a
-              href={featuredApp.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-4 block rounded-xl bg-blue-100 p-4 font-bold"
-            >
-              {featuredApp.name} — {featuredApp.description}
-            </a>
-          </div>
-        )}
-
-        {siteLocked ? (
-          <div className="mt-16 rounded-2xl bg-red-100 p-8 text-center text-red-900 shadow-xl">
-            <h2 className="text-4xl font-black">Site Locked</h2>
-            <p className="mt-3 text-xl">Admin locked the website.</p>
-          </div>
-        ) : (
-          sections.map((section) => {
-            const filteredWebsites = section.websites.filter(matchesSearch)
-
-            if (filteredWebsites.length === 0) return null
-
-            return (
-              <div
-                key={section.title}
-                id={section.title.toLowerCase().replaceAll(" ", "-")}
-                className="mt-16 scroll-mt-32"
-              >
-                <h2 className="mb-6 text-4xl font-bold text-green-900">
-                  {section.title}
-                </h2>
-
-                <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                  {filteredWebsites.map((website) => (
-                    <WebsiteCard key={website.name} website={website} />
-                  ))}
-                </div>
-              </div>
-            )
-          })
-        )}
-
-        {showSecretLinks && (
-          <div className="mt-16">
-            <h2 className="mb-6 text-4xl font-bold text-purple-700">
-              Secret Links Gamble
-            </h2>
-
-            <div className="grid gap-6 sm:grid-cols-2">
-              <WebsiteCard website={secretApp} />
-              <WebsiteCard website={secretWebsite} />
-            </div>
-          </div>
-        )}
-
-        <div className="mt-20 rounded-2xl bg-white p-6 shadow-xl">
-          <h2 className="text-3xl font-bold text-green-900">Admin Panel</h2>
-
-          {!adminUnlocked ? (
-            <>
-              <input
-                type="password"
-                value={passcode}
-                onChange={(e) => setPasscode(e.target.value)}
-                placeholder="Enter admin passcode"
-                className="mt-4 w-full rounded-lg border p-4 text-black"
-              />
-
-              <button
-                onClick={unlockAdmin}
-                className="mt-4 rounded-lg bg-green-900 px-6 py-3 text-white"
-              >
-                Unlock Admin
-              </button>
-
-              {adminError && (
-                <p className="mt-4 rounded-lg bg-red-100 p-4 font-bold text-red-700">
-                  {adminError}
-                </p>
-              )}
-            </>
-          ) : (
-            <div className="mt-6">
-              <p className="rounded-lg bg-green-100 p-4 font-bold text-green-900">
-                Admin Access Granted
-              </p>
-
-              <p className="mt-4 text-lg font-bold text-green-900">
-                Logged in as: @{username}
-              </p>
-
-              <div className="mt-6 rounded-xl bg-green-50 p-4 text-green-900">
-                <h3 className="text-xl font-bold">Saved Users</h3>
-
-                {userList.length === 0 ? (
-                  <p className="mt-2">No users yet.</p>
-                ) : (
-                  <ul className="mt-2 list-disc pl-6">
-                    {userList.map((user) => (
-                      <li key={user}>@{user}</li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-
-              <div className="mt-6 rounded-xl bg-red-50 p-4 text-red-900">
-                <h3 className="text-xl font-bold">Bug Reports</h3>
-
-                {bugReports.length === 0 ? (
-                  <p className="mt-2">No bug reports yet.</p>
-                ) : (
-                  <div className="mt-3 space-y-4">
-                    {bugReports.map((report) => (
-                      <div key={report.id} className="rounded-xl bg-white p-4 shadow">
-                        <p className="font-bold">Website: {report.websiteName}</p>
-                        <p>Reporter: @{report.reporter}</p>
-                        <p>Status: {report.status}</p>
-                        <p className="mt-2">Reason: {report.reason}</p>
-
-                        <div className="mt-4 flex flex-wrap gap-2">
-                          <button
-                            onClick={() => acceptBugReport(report)}
-                            className="rounded-lg bg-green-700 px-4 py-2 text-sm font-bold text-white"
-                          >
-                            Agree + Notify User
-                          </button>
-
-                          <button
-                            onClick={() => dismissBugReport(report.id)}
-                            className="rounded-lg bg-red-700 px-4 py-2 text-sm font-bold text-white"
-                          >
-                            Dismiss Bug
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="mt-6 flex gap-3">
-                <input
-                  value={announcementInput}
-                  onChange={(e) => setAnnouncementInput(e.target.value)}
-                  placeholder="Announcement..."
-                  className="flex-1 rounded-lg border p-4 text-black"
-                />
-
-                <button
-                  onClick={sendAnnouncement}
-                  className="rounded-lg bg-green-900 px-6 py-4 text-white"
-                >
-                  ↵
-                </button>
-              </div>
-
-              <div className="mt-6 flex gap-3">
-                <input
-                  value={titleInput}
-                  onChange={(e) => setTitleInput(e.target.value)}
-                  placeholder="Change website name..."
-                  className="flex-1 rounded-lg border p-4 text-black"
-                />
-
-                <button
-                  onClick={renameWebsite}
-                  className="rounded-lg bg-green-900 px-6 py-4 text-white"
-                >
-                  Rename
-                </button>
-
-                <button
-                  onClick={resetWebsiteName}
-                  className="rounded-lg bg-gray-700 px-6 py-4 text-white"
-                >
-                  Reset
-                </button>
-              </div>
-
-              <div className="mt-6 flex gap-3">
-                <input
-                  value={kickUsername}
-                  onChange={(e) => setKickUsername(e.target.value)}
-                  placeholder="Kick username..."
-                  className="flex-1 rounded-lg border p-4 text-black"
-                />
-
-                <button
-                  onClick={kickUser}
-                  className="rounded-lg bg-red-700 px-6 py-4 text-white"
-                >
-                  Kick User
-                </button>
-              </div>
-
-              <button
-                onClick={gambleSecretLinks}
-                className="mt-4 mr-3 rounded-lg bg-purple-700 px-5 py-3 text-white"
-              >
-                Secret Links
-              </button>
-
-              <button
-                onClick={() => setDarkMode(!darkMode)}
-                className="mt-4 mr-3 rounded-lg bg-black px-5 py-3 text-white"
-              >
-                Dark Mode
-              </button>
-
-              <button
-                onClick={() => setPartyMode(!partyMode)}
-                className="mt-4 mr-3 rounded-lg bg-pink-600 px-5 py-3 text-white"
-              >
-                Party Mode
-              </button>
-
-              <button
-                onClick={() => setSiteLocked(!siteLocked)}
-                className="mt-4 mr-3 rounded-lg bg-red-700 px-5 py-3 text-white"
-              >
-                Lock Site
-              </button>
-
-              <button
-                onClick={randomFeaturedGame}
-                className="mt-4 mr-3 rounded-lg bg-blue-700 px-5 py-3 text-white"
-              >
-                Random Featured Game
-              </button>
-
-              <button
-                onClick={randomFeaturedApp}
-                className="mt-4 rounded-lg bg-indigo-700 px-5 py-3 text-white"
-              >
-                Featured App
-              </button>
-            </div>
-          )}
-        </div>
+        <AdminPanel
+          username={username}
+          passcode={passcode}
+          adminUnlocked={adminUnlocked}
+          adminError={adminError}
+          userList={userList}
+          bugReports={bugReports}
+          announcementInput={announcementInput}
+          kickUsername={kickUsername}
+          setPasscode={setPasscode}
+          setAnnouncementInput={setAnnouncementInput}
+          setKickUsername={setKickUsername}
+          unlockAdmin={unlockAdmin}
+          sendAnnouncement={sendAnnouncement}
+          kickUser={kickUser}
+          gambleSecretLinks={gambleSecretLinks}
+          toggleDarkMode={() => setDarkMode(!darkMode)}
+          togglePartyMode={() => setPartyMode(!partyMode)}
+          toggleSiteLocked={() => setSiteLocked(!siteLocked)}
+          randomFeaturedGame={randomFeaturedGame}
+          randomFeaturedApp={randomFeaturedApp}
+          acceptBugReport={acceptBugReport}
+          dismissBugReport={dismissBugReport}
+          toggleProfile={() => setShowProfile(!showProfile)}
+          toggleAdminBadge={() => setShowAdminBadge(!showAdminBadge)}
+          toggleUserStatus={() => setShowUserStatus(!showUserStatus)}
+          toggleTrendingApps={() => setShowTrendingApps(!showTrendingApps)}
+          cycleTheme={cycleTheme}
+          toggleComments={() => setShowComments(!showComments)}
+          toggleRecentlyVisited={() => setShowRecentlyVisited(!showRecentlyVisited)}
+          toggleSearchSuggestions={() => setShowSuggestions(!showSuggestions)}
+        />
       </section>
     </main>
   )
