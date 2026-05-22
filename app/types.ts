@@ -4,7 +4,16 @@ export type Website = {
   description: string
 }
 
-export type Section = {
-  title: string
-  websites: Website[]
+export type BugReport = {
+  id: number
+  websiteName: string
+  reason: string
+  reporter: string
+  status: "Pending" | "Accepted"
+}
+
+export type PrivateMessage = {
+  id: number
+  to: string
+  message: string
 }

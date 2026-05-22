@@ -446,7 +446,7 @@ export default function HomePage() {
                       favorites={favorites}
                       onToggleFavorite={toggleFavorite}
                       onReportBug={openBugReport}
-                      onVisit={visitWebsite}
+                      // //onVisit={visitWebsite}
                     />
                   ))}
               </div>
@@ -575,7 +575,7 @@ export default function HomePage() {
                   favorites={favorites}
                   onToggleFavorite={toggleFavorite}
                   onReportBug={openBugReport}
-                  onVisit={visitWebsite}
+                  //onVisit={visitWebsite}
                 />
 
                 <WebsiteCard
@@ -583,7 +583,7 @@ export default function HomePage() {
                   favorites={favorites}
                   onToggleFavorite={toggleFavorite}
                   onReportBug={openBugReport}
-                  onVisit={visitWebsite}
+                  //onVisit={visitWebsite}
                 />
               </div>
             </div>
