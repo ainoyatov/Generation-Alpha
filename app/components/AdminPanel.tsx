@@ -15,6 +15,7 @@ type Props = {
   creditAmount: string
   removeUsername: string
   removeAmount: string
+  unlockAllUsername: string
   setPasscode: (value: string) => void
   setAnnouncementInput: (value: string) => void
   setKickUsername: (value: string) => void
@@ -22,11 +23,13 @@ type Props = {
   setCreditAmount: (value: string) => void
   setRemoveUsername: (value: string) => void
   setRemoveAmount: (value: string) => void
+  setUnlockAllUsername: (value: string) => void
   unlockAdmin: () => void
   sendAnnouncement: () => void
   kickUser: () => void
   giveCredits: () => void
   removeCredits: () => void
+  unlockEverythingForUser: () => void
   gambleSecretLinks: () => void
   toggleDarkMode: () => void
   togglePartyMode: () => void
@@ -58,6 +61,7 @@ export default function AdminPanel({
   creditAmount,
   removeUsername,
   removeAmount,
+  unlockAllUsername,
   setPasscode,
   setAnnouncementInput,
   setKickUsername,
@@ -65,11 +69,13 @@ export default function AdminPanel({
   setCreditAmount,
   setRemoveUsername,
   setRemoveAmount,
+  setUnlockAllUsername,
   unlockAdmin,
   sendAnnouncement,
   kickUser,
   giveCredits,
   removeCredits,
+  unlockEverythingForUser,
   gambleSecretLinks,
   toggleDarkMode,
   togglePartyMode,
@@ -182,6 +188,30 @@ export default function AdminPanel({
             </button>
           </div>
 
+          <div className="mt-8 rounded-xl bg-emerald-50 p-4">
+            <h3 className="text-2xl font-bold text-emerald-900">
+              Unlock Everything For User
+            </h3>
+
+            <p className="mt-2 text-sm font-bold text-emerald-800">
+              This unlocks every game, app, website, secret app, and secret website for the username.
+            </p>
+
+            <input
+              value={unlockAllUsername}
+              onChange={(e) => setUnlockAllUsername(e.target.value)}
+              placeholder="Username"
+              className="mt-4 w-full rounded-lg border p-4 text-black"
+            />
+
+            <button
+              onClick={unlockEverythingForUser}
+              className="mt-4 w-full rounded-lg bg-emerald-700 px-6 py-4 font-bold text-white"
+            >
+              Unlock Everything
+            </button>
+          </div>
+
           <div className="mt-8 rounded-xl bg-yellow-50 p-4">
             <h3 className="text-2xl font-bold text-yellow-900">
               Give UserPoints
@@ -255,9 +285,7 @@ export default function AdminPanel({
           </div>
 
           <div className="mt-8 rounded-xl bg-green-50 p-4">
-            <h3 className="text-2xl font-bold text-green-900">
-              Users
-            </h3>
+            <h3 className="text-2xl font-bold text-green-900">Users</h3>
 
             {userList.length === 0 ? (
               <p className="mt-4">No users yet.</p>
@@ -289,9 +317,7 @@ export default function AdminPanel({
           </div>
 
           <div className="mt-8 rounded-xl bg-red-50 p-4">
-            <h3 className="text-2xl font-bold text-red-900">
-              Bug Reports
-            </h3>
+            <h3 className="text-2xl font-bold text-red-900">Bug Reports</h3>
 
             {bugReports.length === 0 ? (
               <p className="mt-4">No bug reports yet.</p>
