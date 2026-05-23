@@ -2,7 +2,7 @@ export type Website = {
   name: string
   url: string
   description: string
-  cost?: number
+  cost: number
 }
 
 export type BugReport = {
